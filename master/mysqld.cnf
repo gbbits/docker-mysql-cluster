@@ -1,0 +1,108 @@
+# Copyright (c) 2014, 2016, Oracle and/or its affiliates. All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+#
+# The MySQL  Server configuration file.
+#
+# For explanations see
+# http://dev.mysql.com/doc/mysql/en/server-system-variables.html
+
+[client]
+default-character-set=utf8mb4
+ 
+[mysql]
+default-character-set=utf8mb4
+ 
+[mysqld]
+port = 3306
+
+character-set-server=utf8mb4
+collation-server=utf8mb4_unicode_ci
+
+pid-file	= /var/run/mysqld/mysqld.pid
+socket		= /var/run/mysqld/mysqld.sock
+datadir		= /opt/data
+log-error	= /opt/log/error.log
+# Disabling symbolic-links is recommended to prevent assorted security risks
+symbolic-links=0
+
+#开启慢查询日志
+slow_query_log = ON
+#指定慢日志文件存放位置，可以为空，系统会给一个缺省的文件host_name-slow.log
+slow_query_log_file = /opt/log/slow.log
+#设定慢查询的阀值，超出次设定值的SQL即被记录到慢查询日志，缺省值为10s
+long_query_time = 1
+
+#线程池缓存大小
+thread_cache_size = 32
+
+#同时处理最大连接数，推荐设置最大连接数是上限连接数的80%左右
+max_connections = 912
+#查询排序时缓冲区大小，只对order by和group by起作用，可增大此值为16M
+sort_buffer_size = 2M
+#打开文件数限制，如果show global status like 'open_files'查看的值等于或者大于open_files_limit值时，程序会无法连接数据库或卡死
+open_files_limit = 64
+
+#索引缓存区大小，一般设置物理内存的30-40%
+key_buffer_size = 64M
+#一般在128kb ~ 256kb,用于MyISAM
+read_buffer_size = 250K
+#一般在128kb ~ 256kb,用于MyISAM
+read_rnd_buffer_size= 250K
+join_buffer_size= 256K
+thread_stack= 256K
+#打开查询缓存功能
+query_cache_type = ON
+#查询缓存限制，只有1M以下查询结果才会被缓存，以免结果数据较大把缓存池覆盖
+query_cache_limit = 1M
+#查看缓冲区大小，用于缓存SELECT查询结果，下一次有同样SELECT查询将直接从缓存池返回结果，可适当成倍增加此值
+query_cache_size = 32M
+
+#索引和数据缓冲区大小，一般设置物理内存的60%-70%
+innodb_buffer_pool_size = 1024M
+tmp_table_size=64M
+#MySQL连接闲置超过一定时间后(单位：秒)将会被强行关闭
+wait_timeout=100
+#缓冲池实例个数，推荐设置4个或8个
+innodb_buffer_pool_instances = 4
+#关键参数，0代表大约每秒写入到日志并同步到磁盘，数据库故障会丢失1秒左右事务数据。1为每执行一条SQL后写入到日志并同步到磁盘，I/O开销大，执行完SQL要等待日志读写，效率低。2代表只把日志写入到系统缓存区，再每秒同步到磁盘，效率很高，如果服务器故障，才会丢失事务数据。对数据安全性要求不是很高的推荐设置2，性能高，修改后效果明显。
+innodb_flush_log_at_trx_commit = 1
+#默认是共享表空间，共享表空间idbdata文件不断增大，影响一定的I/O性能。推荐开启独立表空间模式，每个表的索引和数据都存在自己独立的表空间中，可以实现单表在不同数据库中移动。
+innodb_file_per_table = OFF
+#日志缓冲区大小，由于日志最长每秒钟刷新一次，所以一般不用超过16M
+innodb_log_buffer_size = 8M
+#每一个InnoDB事务日志的大小。一般设为innodb_buffer_pool_size的25%到100%
+innodb_log_file_size=64M
+
+
+
+#################################### 主 ############################
+
+
+## 设置server_id，一般设置为IP，同一局域网内注意要唯一
+server_id=100
+## 复制过滤：也就是指定哪个数据库不用同步（mysql库一般不同步）
+binlog-ignore-db=mysql
+## 开启二进制日志功能，可以随便取，最好有含义（关键就是这里了）
+log-bin=mysql-bin
+## 为每个session 分配的内存，在事务过程中用来存储二进制日志的缓存
+binlog_cache_size=1M
+## 主从复制的格式（mixed,statement,row，默认格式是statement）
+binlog_format=mixed
+## 二进制日志自动删除/过期的天数。默认值为0，表示不自动删除。
+expire_logs_days=7
+## 跳过主从复制中遇到的所有错误或指定类型的错误，避免slave端复制中断。
+## 如：1062错误是指一些主键重复，1032错误是因为主从数据库数据不一致
+slave_skip_errors=1062

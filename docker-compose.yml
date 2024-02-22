@@ -1,0 +1,30 @@
+version : '3'
+services :
+    ######################### mysql 主从 ##################################
+    mysql-master:
+        build: ./master
+        container_name: mysql-master
+        ports:
+            - "3306:3306"
+        environment :
+            - MYSQL_ROOT_PASSWORD=root # 设置mysql的root密码
+        volumes:
+            - D:\docker-cluster\mysql\master\log:/opt/log
+            - D:\docker-cluster\mysql\master\data:/opt/data
+        networks:
+            - mysql-net
+    mysql-slave:
+        build: ./slave
+        container_name: mysql-slave
+        ports:
+            - "3307:3307"
+        environment:
+            - MYSQL_ROOT_PASSWORD=root # 设置mysql的root密码
+        volumes:
+            - D:\docker-cluster\mysql\slave\log:/opt/log
+            - D:\docker-cluster\mysql\slave\data:/opt/data
+        networks:
+            - mysql-net
+
+networks: # 创建网络
+    mysql-net:
